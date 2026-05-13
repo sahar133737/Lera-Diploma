@@ -12,6 +12,7 @@ namespace Lera_Diploma.Data
         }
 
         public DbSet<Role> Roles { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<Account> Accounts { get; set; }
@@ -38,6 +39,12 @@ namespace Lera_Diploma.Data
             modelBuilder.Entity<UserRole>()
                 .HasRequired(x => x.Role)
                 .WithMany(x => x.UserRoles)
+                .HasForeignKey(x => x.RoleId)
+                .WillCascadeOnDelete(true);
+
+            modelBuilder.Entity<RolePermission>()
+                .HasRequired(x => x.Role)
+                .WithMany()
                 .HasForeignKey(x => x.RoleId)
                 .WillCascadeOnDelete(true);
 

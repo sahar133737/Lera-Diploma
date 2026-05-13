@@ -104,12 +104,12 @@ namespace Lera_Diploma.Controls
             if (id.HasValue && existing == null)
                 return;
 
-            using (var f = new MaterialModalForm(id.HasValue ? "Контрагент" : "Новый контрагент", UiTheme.Primary, 480, 300, "counterparties"))
+            using (var f = new MaterialModalForm(id.HasValue ? "Контрагент" : "Новый контрагент", UiTheme.Primary, 520, 360, "counterparties"))
             {
-                var txtName = new TextBox { Left = 0, Top = 0, Width = 400, Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right, Text = existing?.Name ?? "" };
-                var txtInn = new TextBox { Left = 0, Top = 36, Width = 400, Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right, Text = existing?.Inn ?? "" };
-                var txtKpp = new TextBox { Left = 0, Top = 72, Width = 400, Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right, Text = existing?.Kpp ?? "" };
-                var cbKind = new ComboBox { Left = 0, Top = 108, Width = 160, DropDownStyle = ComboBoxStyle.DropDownList, Anchor = AnchorStyles.Left | AnchorStyles.Top };
+                var txtName = new TextBox { Text = existing?.Name ?? "" };
+                var txtInn = new TextBox { Text = existing?.Inn ?? "" };
+                var txtKpp = new TextBox { Text = existing?.Kpp ?? "" };
+                var cbKind = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList };
                 cbKind.Items.AddRange(new object[] { "ЮЛ", "ИП", "ФЛ" });
                 cbKind.SelectedItem = existing?.Kind ?? "ЮЛ";
                 MaterialStyle.StyleTextBox(txtName);
@@ -121,21 +121,21 @@ namespace Lera_Diploma.Controls
                 root.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
                 root.RowStyles.Add(new RowStyle(SizeType.Absolute, 52f));
 
-                var pFields = new TableLayoutPanel { ColumnCount = 2, Dock = DockStyle.Fill, AutoSize = true, Padding = new Padding(0) };
+                var pFields = new TableLayoutPanel { ColumnCount = 2, RowCount = 4, Dock = DockStyle.Fill, AutoSize = true, Padding = new Padding(0) };
                 pFields.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
-                pFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-                void Row(string title, Control c, ref int rowIdx)
+                pFields.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
+                for (var i = 0; i < 4; i++)
+                    pFields.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+                void Row(int row, string title, Control c)
                 {
-                    pFields.Controls.Add(new Label { Text = title, AutoSize = true, Anchor = AnchorStyles.Left, Margin = new Padding(0, 8, 8, 0) }, 0, rowIdx);
-                    c.Dock = DockStyle.Fill;
-                    pFields.Controls.Add(c, 1, rowIdx);
-                    rowIdx++;
+                    pFields.Controls.Add(new Label { Text = title, AutoSize = true, Anchor = AnchorStyles.Left, Margin = new Padding(0, 10, 8, 0) }, 0, row);
+                    c.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+                    pFields.Controls.Add(c, 1, row);
                 }
-                var row = 0;
-                Row("Наименование:", txtName, ref row);
-                Row("ИНН:", txtInn, ref row);
-                Row("КПП:", txtKpp, ref row);
-                Row("Тип:", cbKind, ref row);
+                Row(0, "Наименование:", txtName);
+                Row(1, "ИНН:", txtInn);
+                Row(2, "КПП:", txtKpp);
+                Row(3, "Тип:", cbKind);
 
                 var footer = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, Padding = new Padding(0, 8, 0, 0) };
                 var ok = MaterialModalForm.CreateDialogButton("Сохранить", DialogResult.OK, true);

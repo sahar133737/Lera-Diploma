@@ -10,9 +10,7 @@ namespace Lera_Diploma.Services
         {
             Database.SetInitializer(new FinancialDbInitializer());
             using (var db = new FinancialDbContext())
-            {
                 db.Database.Initialize(true);
-            }
 
             TestDataSeeder.EnsureRichDemoData();
             ReportHeaderService.EnsureDefaultSettings();

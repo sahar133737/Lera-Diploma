@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Lera_Diploma.Forms;
+using Lera_Diploma.Models;
 using Lera_Diploma.Security;
 using Lera_Diploma.Services;
 using Lera_Diploma.UI;
@@ -101,6 +102,21 @@ namespace Lera_Diploma.Controls
             Load += DocumentsUserControl_Load;
         }
 
+        private static string FormatDocumentPurposes(FinancialDocument x)
+        {
+            if (x.Entries == null || !x.Entries.Any())
+                return "";
+            var parts = x.Entries.OrderBy(e => e.LineNo)
+                .Select(e => e.Purpose)
+                .Where(p => !string.IsNullOrWhiteSpace(p))
+                .Select(p => p.Trim())
+                .ToList();
+            if (parts.Count == 0)
+                return "";
+            var s = string.Join("; ", parts);
+            return s.Length > 200 ? s.Substring(0, 197) + "…" : s;
+        }
+
         private void DocumentsUserControl_Load(object sender, EventArgs e)
         {
             var canEdit = RolePermissionService.HasPermission(ModuleKeys.DocumentsEdit);
@@ -165,7 +181,9 @@ namespace Lera_Diploma.Controls
                 Тип = x.DocumentType.Name,
                 Статус = x.DocumentStatus.Name,
                 Контрагент = x.Counterparty != null ? x.Counterparty.Name : "",
-                Ответственный = x.ResponsibleUser.FullName
+                Ответственный = x.ResponsibleUser.FullName,
+                Сумма = x.Entries == null || !x.Entries.Any() ? 0m : x.Entries.Sum(e => e.Amount),
+                Назначение = FormatDocumentPurposes(x)
             });
             _grid.DataSource = EnumerableToDataTable.FromRows(rows);
             GridHeaderMap.Apply(_grid, "documents", "Id");

@@ -104,12 +104,14 @@ namespace Lera_Diploma.Forms
             try
             {
                 _flowMenu.Width = w;
+                var pad = _flowMenu.Padding.Left + _flowMenu.Padding.Right;
                 foreach (Control c in _flowMenu.Controls)
                 {
                     if (c is Button b && b.Tag is string)
                     {
-                        var inner = w - _flowMenu.Padding.Horizontal - b.Margin.Horizontal;
-                        b.Width = Math.Max(80, inner);
+                        var inner = w - pad - b.Margin.Horizontal;
+                        var textW = TextRenderer.MeasureText(b.Text, b.Font, Size.Empty, TextFormatFlags.SingleLine).Width + 28;
+                        b.Width = Math.Max(80, Math.Max(inner, textW));
                     }
                 }
             }

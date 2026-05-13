@@ -31,7 +31,7 @@ namespace Lera_Diploma.Forms
             this.panelSidebar.Location = new System.Drawing.Point(0, 0);
             this.panelSidebar.Name = "panelSidebar";
             this.panelSidebar.Padding = new System.Windows.Forms.Padding(0);
-            this.panelSidebar.Size = new System.Drawing.Size(228, 600);
+            this.panelSidebar.Size = new System.Drawing.Size(272, 600);
             this.panelSidebar.TabIndex = 0;
             // 
             // panelTop
@@ -39,7 +39,7 @@ namespace Lera_Diploma.Forms
             this.panelTop.BackColor = Lera_Diploma.Forms.UiTheme.HeaderBg;
             this.panelTop.Controls.Add(this.lblModuleTitle);
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelTop.Location = new System.Drawing.Point(228, 0);
+            this.panelTop.Location = new System.Drawing.Point(272, 0);
             this.panelTop.Name = "panelTop";
             this.panelTop.Padding = new System.Windows.Forms.Padding(16, 12, 16, 12);
             this.panelTop.Size = new System.Drawing.Size(876, 56);
@@ -60,7 +60,7 @@ namespace Lera_Diploma.Forms
             // 
             this.panelHost.BackColor = Lera_Diploma.Forms.UiTheme.PageBackground;
             this.panelHost.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelHost.Location = new System.Drawing.Point(228, 48);
+            this.panelHost.Location = new System.Drawing.Point(272, 48);
             this.panelHost.Name = "panelHost";
             this.panelHost.Padding = new System.Windows.Forms.Padding(12);
             this.panelHost.Size = new System.Drawing.Size(876, 552);

@@ -18,6 +18,7 @@ namespace Lera_Diploma.Controls
         private readonly Button _btnDelete = new Button { Text = "Удалить" };
         private readonly Button _btnResetPwd = new Button { Text = "Сброс пароля" };
         private readonly Button _btnToggleActive = new Button { Text = "Вкл./выкл." };
+        private readonly Button _btnRolePerms = new Button { Text = "Права ролей" };
         private readonly UserAdminService _svc = new UserAdminService();
         private bool _suspendIsActiveEvents;
 
@@ -33,12 +34,14 @@ namespace Lera_Diploma.Controls
             MaterialStyle.StyleToolbarButton(_btnDelete);
             MaterialStyle.StyleToolbarButton(_btnResetPwd);
             MaterialStyle.StyleToolbarButton(_btnToggleActive);
+            MaterialStyle.StyleToolbarButton(_btnRolePerms);
             top.Controls.Add(_btnRefresh);
             top.Controls.Add(_btnAdd);
             top.Controls.Add(_btnEdit);
             top.Controls.Add(_btnDelete);
             top.Controls.Add(_btnResetPwd);
             top.Controls.Add(_btnToggleActive);
+            top.Controls.Add(_btnRolePerms);
             MaterialStyle.StyleDataGrid(_grid);
             _grid.Dock = DockStyle.Fill;
             _grid.AllowUserToOrderColumns = true;
@@ -61,6 +64,7 @@ namespace Lera_Diploma.Controls
             _btnDelete.Click += BtnDelete_Click;
             _btnResetPwd.Click += BtnResetPwd_Click;
             _btnToggleActive.Click += BtnToggleActive_Click;
+            _btnRolePerms.Click += BtnRolePerms_Click;
             Load += (_, __) => Reload();
         }
 
@@ -126,6 +130,18 @@ namespace Lera_Diploma.Controls
                 return null;
             var v = _grid.CurrentRow.Cells["Id"].Value;
             return v == null || v == DBNull.Value ? (int?)null : Convert.ToInt32(v);
+        }
+
+        private void BtnRolePerms_Click(object sender, EventArgs e)
+        {
+            if (!CurrentUserContext.IsAdmin)
+            {
+                MessageBox.Show(FindForm(), "Доступно только администратору.", "Права ролей", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            using (var f = new RolePermissionsForm())
+                f.ShowDialog(FindForm());
+            RolePermissionService.LoadCurrentRolePermissions();
         }
 
         private void BtnAdd_Click(object sender, EventArgs e)
@@ -335,6 +351,7 @@ namespace Lera_Diploma.Controls
             _suspendIsActiveEvents = true;
             try
             {
+                _btnRolePerms.Visible = CurrentUserContext.IsAdmin;
                 var raw = _svc.GetUsersForGrid();
                 _grid.DataSource = EnumerableToDataTable.FromRows((System.Collections.IEnumerable)raw);
                 GridHeaderMap.Apply(_grid, "users", "Id");

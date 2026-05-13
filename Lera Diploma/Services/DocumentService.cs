@@ -41,6 +41,7 @@ namespace Lera_Diploma.Services
                     .Include("DocumentStatus")
                     .Include("Counterparty")
                     .Include("ResponsibleUser")
+                    .Include("Entries")
                     .AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(searchText))
@@ -92,6 +93,8 @@ namespace Lera_Diploma.Services
                 return "Выберите тип документа.";
             if (model.ResponsibleUserId <= 0)
                 return "Укажите ответственного.";
+            if (model.Entries == null || !model.Entries.Any())
+                return "Добавьте хотя бы одну строку проводки.";
 
             using (var db = new FinancialDbContext())
             {
@@ -204,7 +207,7 @@ namespace Lera_Diploma.Services
                     return null;
                 }
 
-                foreach (var line in doc.Entries)
+                foreach (var line in doc.Entries.OrderBy(x => x.LineNo))
                 {
                     if (line.Amount <= 0)
                     {
@@ -215,6 +218,12 @@ namespace Lera_Diploma.Services
                     if (line.DebitAccountId == line.CreditAccountId)
                     {
                         error = "В строке проводки дебет и кредит не должны совпадать.";
+                        return null;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(line.Purpose))
+                    {
+                        error = "Заполните назначение платежа во всех строках проводок.";
                         return null;
                     }
                 }

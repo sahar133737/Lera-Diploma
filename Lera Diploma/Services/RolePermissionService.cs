@@ -1,64 +1,54 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using Lera_Diploma.Data;
 using Lera_Diploma.Security;
 
 namespace Lera_Diploma.Services
 {
-    /// <summary>Загрузка набора разрешений после входа (по ролям из БД, как RolePermissionService в BGSK1).</summary>
+    /// <summary>Эффективные разрешения текущего пользователя (по таблице RolePermissions в БД).</summary>
     public static class RolePermissionService
     {
         private static readonly HashSet<string> Permissions = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        private static readonly Dictionary<string, string[]> RoleToModules =
-            new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["Admin"] = new[]
-                {
-                    ModuleKeys.Dashboard, ModuleKeys.Documents, ModuleKeys.DocumentsEdit, ModuleKeys.DocumentsPost, ModuleKeys.Ledger,
-                    ModuleKeys.Counterparties, ModuleKeys.CounterpartiesEdit, ModuleKeys.Budget, ModuleKeys.BudgetEdit,
-                    ModuleKeys.References, ModuleKeys.ReferencesEdit, ModuleKeys.Accounts, ModuleKeys.AccountsEdit,
-                    ModuleKeys.Reports, ModuleKeys.ReportsExport, ModuleKeys.Users, ModuleKeys.Audit, ModuleKeys.Backup
-                },
-                ["ChiefAccountant"] = new[]
-                {
-                    ModuleKeys.Dashboard, ModuleKeys.Documents, ModuleKeys.DocumentsEdit, ModuleKeys.DocumentsPost, ModuleKeys.Ledger,
-                    ModuleKeys.Counterparties, ModuleKeys.CounterpartiesEdit, ModuleKeys.Budget, ModuleKeys.BudgetEdit,
-                    ModuleKeys.References, ModuleKeys.ReferencesEdit, ModuleKeys.Accounts,
-                    ModuleKeys.Reports, ModuleKeys.ReportsExport, ModuleKeys.Audit, ModuleKeys.Backup
-                },
-                ["Accountant"] = new[]
-                {
-                    ModuleKeys.Dashboard, ModuleKeys.Documents, ModuleKeys.DocumentsEdit, ModuleKeys.Ledger,
-                    ModuleKeys.Counterparties, ModuleKeys.CounterpartiesEdit, ModuleKeys.Budget,
-                    ModuleKeys.References, ModuleKeys.Accounts,
-                    ModuleKeys.Reports, ModuleKeys.ReportsExport
-                },
-                ["Viewer"] = new[]
-                {
-                    ModuleKeys.Dashboard, ModuleKeys.Documents, ModuleKeys.Ledger,
-                    ModuleKeys.Counterparties, ModuleKeys.Budget, ModuleKeys.References, ModuleKeys.Accounts,
-                    ModuleKeys.Reports
-                }
-            };
-
         public static void LoadCurrentRolePermissions()
         {
             Permissions.Clear();
-            if (CurrentUserContext.RoleCodes == null)
+            if (!CurrentUserContext.IsAuthenticated)
                 return;
-            foreach (var role in CurrentUserContext.RoleCodes)
+
+            try
             {
-                if (RoleToModules.TryGetValue(role, out var mods))
+                using (var db = new FinancialDbContext())
                 {
-                    foreach (var m in mods)
-                        Permissions.Add(m);
+                    var roleIds = db.UserRoles.AsNoTracking()
+                        .Where(x => x.UserId == CurrentUserContext.UserId)
+                        .Select(x => x.RoleId)
+                        .ToList();
+                    if (roleIds.Count == 0)
+                        return;
+
+                    var keys = db.RolePermissions.AsNoTracking()
+                        .Where(x => roleIds.Contains(x.RoleId))
+                        .Select(x => x.PermissionKey)
+                        .Distinct()
+                        .ToList();
+                    foreach (var k in keys)
+                    {
+                        if (!string.IsNullOrWhiteSpace(k))
+                            Permissions.Add(k.Trim());
+                    }
                 }
+            }
+            catch
+            {
+                // При несовпадении схемы БД не блокируем вход — пустой набор прав.
             }
         }
 
         public static bool HasPermission(string permissionKey) =>
-            !string.IsNullOrWhiteSpace(permissionKey) && Permissions.Contains(permissionKey);
+            !string.IsNullOrWhiteSpace(permissionKey) && Permissions.Contains(permissionKey.Trim());
 
         public static void Clear() => Permissions.Clear();
     }

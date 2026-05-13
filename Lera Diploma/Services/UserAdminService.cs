@@ -68,8 +68,11 @@ namespace Lera_Diploma.Services
                 var loginTrim = login.Trim();
                 if (db.Users.Any(x => x.Login == loginTrim))
                     return "Пользователь с таким логином уже есть.";
-                if (!db.Roles.Any(x => x.Id == roleId))
+                var roleRow = db.Roles.FirstOrDefault(x => x.Id == roleId);
+                if (roleRow == null)
                     return "Роль не найдена.";
+                if (string.Equals(roleRow.Code, "Admin", StringComparison.OrdinalIgnoreCase) && !CurrentUserContext.IsAdmin)
+                    return "Назначать роль администратора может только администратор.";
                 var u = new User
                 {
                     Login = loginTrim,
@@ -95,8 +98,11 @@ namespace Lera_Diploma.Services
                 var u = db.Users.Include("UserRoles").FirstOrDefault(x => x.Id == userId);
                 if (u == null)
                     return "Не найдено.";
-                if (!db.Roles.Any(x => x.Id == roleId))
+                var roleRow = db.Roles.FirstOrDefault(x => x.Id == roleId);
+                if (roleRow == null)
                     return "Роль не найдена.";
+                if (string.Equals(roleRow.Code, "Admin", StringComparison.OrdinalIgnoreCase) && !CurrentUserContext.IsAdmin)
+                    return "Назначать роль администратора может только администратор.";
                 u.FullName = fullName.Trim();
                 var existing = u.UserRoles.ToList();
                 foreach (var ur in existing)

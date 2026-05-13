@@ -18,6 +18,14 @@ namespace Lera_Diploma.Security
 
         public static bool IsAuthenticated => UserId > 0;
 
+        public static bool HasRole(string roleCode) =>
+            !string.IsNullOrWhiteSpace(roleCode)
+            && RoleCodes != null
+            && RoleCodes.Any(x => string.Equals(x, roleCode.Trim(), StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>Роль «Администратор» (для опасных операций: права ролей, назначение администратора).</summary>
+        public static bool IsAdmin => HasRole("Admin");
+
         public static void Set(int userId, string login, string fullName, IEnumerable<string> roleCodes)
         {
             UserId = userId;
