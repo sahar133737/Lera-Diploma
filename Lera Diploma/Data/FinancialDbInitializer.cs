@@ -20,6 +20,12 @@ namespace Lera_Diploma.Data
 
             if (!context.Database.Exists())
                 context.Database.Create();
+            else if (!SchemaHasTable(context, "Roles"))
+            {
+                // База создана вручную (CREATE DATABASE) без таблиц — пересоздаём под модель EF.
+                context.Database.Delete();
+                context.Database.Create();
+            }
 
             RolePermissionDefaults.EnsureTable(context);
 
@@ -179,6 +185,21 @@ namespace Lera_Diploma.Data
             }
 
             RolePermissionDefaults.SeedMissing(context);
+        }
+
+        private static bool SchemaHasTable(FinancialDbContext context, string tableName)
+        {
+            if (!string.Equals(tableName, "Roles", StringComparison.OrdinalIgnoreCase))
+                return false;
+            try
+            {
+                const string sql = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = SCHEMA_NAME() AND TABLE_NAME = N'Roles'";
+                return context.Database.SqlQuery<int>(sql).Single() > 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

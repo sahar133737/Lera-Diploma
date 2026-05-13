@@ -47,8 +47,10 @@ namespace Lera_Diploma.Services
         {
             if (db == null)
                 return;
+            // Таблица Roles должна уже существовать (создана EF). Иначе FK падает — типичный случай: каталог БД есть, схемы нет.
             const string sql = @"
-IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = SCHEMA_NAME() AND TABLE_NAME = 'RolePermissions')
+IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = SCHEMA_NAME() AND TABLE_NAME = N'Roles')
+AND NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = SCHEMA_NAME() AND TABLE_NAME = N'RolePermissions')
 BEGIN
     CREATE TABLE [dbo].[RolePermissions](
         [RoleId] [int] NOT NULL,

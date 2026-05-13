@@ -20,9 +20,6 @@ namespace Lera_Diploma.Controls
         private readonly DateTimePicker _dtTo = new DateTimePicker { Format = DateTimePickerFormat.Short };
         private readonly ComboBox _cbAccount = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Width = 200 };
         private readonly Button _btnRefresh = new Button { Text = "Обновить" };
-        private readonly Button _btnAdd = new Button { Text = "Добавить" };
-        private readonly Button _btnEdit = new Button { Text = "Изменить" };
-        private readonly Button _btnDelete = new Button { Text = "Удалить" };
         private readonly Button _btnBuild = new Button { Text = "Сформировать" };
         private readonly Button _btnExcel = new Button { Text = "Excel" };
         private readonly Button _btnPdf = new Button { Text = "PDF" };
@@ -40,14 +37,14 @@ namespace Lera_Diploma.Controls
             Dock = DockStyle.Fill;
             Padding = new Padding(16);
 
-            var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4 };
-            root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3 };
             root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             root.RowStyles.Add(new RowStyle(SizeType.Percent, 55f));
             root.RowStyles.Add(new RowStyle(SizeType.Percent, 45f));
 
             var filters = new FlowLayoutPanel { AutoSize = true, FlowDirection = FlowDirection.LeftToRight, WrapContents = true, Padding = new Padding(0, 0, 0, 4) };
-            filters.Controls.Add(new Label { Text = "Отчёт:", AutoSize = true, Margin = new Padding(0, 10, 4, 0), ForeColor = UiTheme.TextPrimary });
+            filters.Controls.Add(_btnRefresh);
+            filters.Controls.Add(new Label { Text = "Отчёт:", AutoSize = true, Margin = new Padding(8, 10, 4, 0), ForeColor = UiTheme.TextPrimary });
             _cbReport.Items.AddRange(new object[]
             {
                 "Карточка счёта: обороты за период",
@@ -68,23 +65,13 @@ namespace Lera_Diploma.Controls
             filters.Controls.Add(_btnPdf);
             filters.Controls.Add(_btnPrint);
 
-            var buttons = ModuleToolbar.CreateDockTopToolbar();
-            buttons.Controls.Add(_btnRefresh);
-            buttons.Controls.Add(_btnAdd);
-            buttons.Controls.Add(_btnEdit);
-            buttons.Controls.Add(_btnDelete);
-
             MaterialStyle.StyleToolbarButton(_btnRefresh);
-            MaterialStyle.StyleToolbarButton(_btnAdd);
-            MaterialStyle.StyleToolbarButton(_btnEdit);
-            MaterialStyle.StyleToolbarButton(_btnDelete);
             MaterialStyle.StyleToolbarButton(_btnBuild, true);
             MaterialStyle.StyleToolbarButton(_btnExcel);
             MaterialStyle.StyleToolbarButton(_btnPdf);
             MaterialStyle.StyleToolbarButton(_btnPrint);
             MaterialStyle.StyleCombo(_cbReport);
             MaterialStyle.StyleCombo(_cbAccount);
-            _btnAdd.Enabled = _btnEdit.Enabled = _btnDelete.Enabled = false;
 
             MaterialStyle.StyleDataGrid(_grid);
             _grid.Dock = DockStyle.Fill;
@@ -106,9 +93,8 @@ namespace Lera_Diploma.Controls
             gridHost.Controls.Add(_grid);
 
             root.Controls.Add(filters, 0, 0);
-            root.Controls.Add(buttons, 0, 1);
-            root.Controls.Add(gridHost, 0, 2);
-            root.Controls.Add(chartsPanel, 0, 3);
+            root.Controls.Add(gridHost, 0, 1);
+            root.Controls.Add(chartsPanel, 0, 2);
 
             Controls.Add(root);
 
